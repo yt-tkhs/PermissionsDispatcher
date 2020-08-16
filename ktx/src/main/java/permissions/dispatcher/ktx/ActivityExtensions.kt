@@ -3,6 +3,7 @@ package permissions.dispatcher.ktx
 import android.annotation.SuppressLint
 import android.provider.Settings
 import androidx.fragment.app.FragmentActivity
+import permissions.dispatcher.PermissionUtils
 
 /**
  * Constructs a request for ordinary permissions that require a grant from the user.
@@ -24,12 +25,17 @@ fun FragmentActivity.constructPermissionsRequest(
     requiresPermission: Fun
 ): PermissionsRequester = PermissionsRequesterImpl(
     permissions = permissions,
-    activity = this,
     onShowRationale = onShowRationale,
     onPermissionDenied = onPermissionDenied,
     onNeverAskAgain = onNeverAskAgain,
     requiresPermission = requiresPermission,
-    permissionRequestType = PermissionRequestType.Normal
+    permissionRequestType = PermissionRequestType.Normal,
+    viewModelStoreOwner = this,
+    lifecycleOwner = this,
+    fragmentManager = supportFragmentManager,
+    context = this,
+    target = this,
+    shouldShowRequestPermissionRationale = PermissionUtils::shouldShowRequestPermissionRationale
 )
 
 /**
@@ -49,12 +55,17 @@ fun FragmentActivity.constructLocationPermissionRequest(
     requiresPermission: Fun
 ): PermissionsRequester = PermissionsRequesterImpl(
     permissions = permissions.filterByApiLevel(),
-    activity = this,
     onShowRationale = onShowRationale,
     onPermissionDenied = onPermissionDenied,
     onNeverAskAgain = onNeverAskAgain,
     requiresPermission = requiresPermission,
-    permissionRequestType = PermissionRequestType.Normal
+    permissionRequestType = PermissionRequestType.Normal,
+    viewModelStoreOwner = this,
+    lifecycleOwner = this,
+    fragmentManager = supportFragmentManager,
+    context = this,
+    target = this,
+    shouldShowRequestPermissionRationale = PermissionUtils::shouldShowRequestPermissionRationale
 )
 
 /**
@@ -73,12 +84,17 @@ fun FragmentActivity.constructWriteSettingsPermissionRequest(
     requiresPermission: Fun
 ): PermissionsRequester = PermissionsRequesterImpl(
     permissions = arrayOf(Settings.ACTION_MANAGE_WRITE_SETTINGS),
-    activity = this,
     onShowRationale = onShowRationale,
     onPermissionDenied = onPermissionDenied,
     onNeverAskAgain = null,
     requiresPermission = requiresPermission,
-    permissionRequestType = PermissionRequestType.WriteSettings
+    permissionRequestType = PermissionRequestType.WriteSettings,
+    viewModelStoreOwner = this,
+    lifecycleOwner = this,
+    fragmentManager = supportFragmentManager,
+    context = this,
+    target = this,
+    shouldShowRequestPermissionRationale = PermissionUtils::shouldShowRequestPermissionRationale
 )
 
 /**
@@ -97,10 +113,15 @@ fun FragmentActivity.constructSystemAlertWindowPermissionRequest(
     requiresPermission: Fun
 ): PermissionsRequester = PermissionsRequesterImpl(
     permissions = arrayOf(Settings.ACTION_MANAGE_OVERLAY_PERMISSION),
-    activity = this,
     onShowRationale = onShowRationale,
     onPermissionDenied = onPermissionDenied,
     onNeverAskAgain = null,
     requiresPermission = requiresPermission,
-    permissionRequestType = PermissionRequestType.SystemAlertWindow
+    permissionRequestType = PermissionRequestType.SystemAlertWindow,
+    viewModelStoreOwner = this,
+    lifecycleOwner = this,
+    fragmentManager = supportFragmentManager,
+    context = this,
+    target = this,
+    shouldShowRequestPermissionRationale = PermissionUtils::shouldShowRequestPermissionRationale
 )

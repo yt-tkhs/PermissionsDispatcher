@@ -1,22 +1,30 @@
 package permissions.dispatcher.ktx
 
-import androidx.fragment.app.FragmentActivity
+import android.content.Context
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
-import permissions.dispatcher.PermissionUtils
+import androidx.lifecycle.ViewModelStoreOwner
 
-internal class PermissionsRequesterImpl(
+internal class PermissionsRequesterImpl<T>(
     private val permissions: Array<out String>,
-    private val activity: FragmentActivity,
     private val onShowRationale: ShowRationaleFun?,
     private val onPermissionDenied: Fun?,
     private val requiresPermission: Fun,
     onNeverAskAgain: Fun?,
-    private val permissionRequestType: PermissionRequestType
+    private val permissionRequestType: PermissionRequestType,
+    viewModelStoreOwner: ViewModelStoreOwner,
+    lifecycleOwner: LifecycleOwner,
+    private val fragmentManager: FragmentManager,
+    private val context: Context,
+    private val target: T,
+    private val shouldShowRequestPermissionRationale: (T, Array<out String>) -> Boolean
 ) : PermissionsRequester {
     init {
-        val viewModel = ViewModelProvider(activity).get(PermissionRequestViewModel::class.java)
+        val viewModel =
+            ViewModelProvider(viewModelStoreOwner).get(PermissionRequestViewModel::class.java)
         viewModel.observe(
-            activity,
+            lifecycleOwner,
             requiresPermission,
             onPermissionDenied,
             onNeverAskAgain
@@ -24,16 +32,16 @@ internal class PermissionsRequesterImpl(
     }
 
     override fun launch() {
-        if (permissionRequestType.checkPermissions(activity, permissions)) {
+        if (permissionRequestType.checkPermissions(context, permissions)) {
             requiresPermission()
         } else {
             val requestFun = {
-                activity.supportFragmentManager
+                fragmentManager
                     .beginTransaction()
                     .replace(android.R.id.content, permissionRequestType.fragment(permissions))
                     .commitNowAllowingStateLoss()
             }
-            if (PermissionUtils.shouldShowRequestPermissionRationale(activity, *permissions)) {
+            if (shouldShowRequestPermissionRationale(target, permissions)) {
                 onShowRationale?.invoke(KtxPermissionRequest.create(onPermissionDenied, requestFun))
             } else {
                 requestFun.invoke()
